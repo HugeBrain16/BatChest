@@ -1,0 +1,9 @@
+py-cord[voice]
+cmdtools-py>=2.4.8
+Flask
+youtube-dl
+youtube-search-python
+lyricsgenius
+requests
+python-dotenv
+asyncpraw
