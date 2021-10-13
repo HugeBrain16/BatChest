@@ -1,4 +1,4 @@
-py-cord[voice]
+discord.py[voice]
 cmdtools-py>=2.4.8
 Flask
 youtube-dl
