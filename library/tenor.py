@@ -1,7 +1,7 @@
 """Tenor API Wrapper"""
 
-import requests
 from typing import Optional
+import requests
 
 BASE = "https://g.tenor.com/v1"
 
@@ -13,3 +13,5 @@ def search_gif(query: str, api_key: str, limit: int = 5) -> Optional[dict]:
     )
     if req.status_code == 200:
         return req.json()
+
+    return {}

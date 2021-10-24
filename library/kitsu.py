@@ -1,15 +1,18 @@
 """Kitsu.io API Wrapper"""
 
-import requests
 import random
 import datetime
 from typing import List
 from enum import Enum
 
+import requests
+import discord
+
 BASE = "https://kitsu.io/api/edge"
 
 
 class ImageSize(Enum):
+    """image size enum"""
     ORIGINAL = "original"
     SMALL = "small"
     TINY = "tiny"
@@ -18,15 +21,19 @@ class ImageSize(Enum):
 
 
 class ContentType(Enum):
+    """content type enum"""
     ANIME = "anime"
     MANGA = "manga"
 
 
 class MediaDefault(Enum):
+    """media default content"""
     NOT_FOUND = "https://gcdn.pbrd.co/images/zkdbeZmdYByv.gif"
 
 
 class Anime:
+    """Anime content instance"""
+
     def __init__(self, anime_id: int):
         self.request = requests.get(BASE + "/anime/" + str(anime_id))
         self.data = self.request.json()["data"]
@@ -35,50 +42,62 @@ class Anime:
         return self.data
 
     @property
-    def id(self) -> int:
+    def content_id(self) -> int:
+        """get content id"""
         return int(self.data["id"])
 
     @property
     def type(self) -> ContentType:
+        """get content type"""
         return ContentType[self.data["type"]]
 
     @property
     def episodes(self) -> int:
+        """get episode count"""
         return self.data["attributes"].get("episodeCount", 0)
 
     @property
     def url(self) -> str:
-        return "https://kitsu.io/anime/" + str(self.id)
+        """get website url"""
+        return "https://kitsu.io/anime/" + str(self.content_id)
 
     @property
     def api_url(self) -> str:
-        return BASE + "/anime/" + str(self.id)
+        """get api path url"""
+        return BASE + "/anime/" + str(self.content_id)
 
     @property
     def title(self) -> str:
+        """get title"""
         return self.data["attributes"]["titles"].get("en", "-")
 
     @property
     def title_jp(self) -> str:
+        """get japanese romaji title"""
         return self.data["attributes"]["titles"].get("en_jp", "-")
 
     @property
     def title_ja(self) -> str:
+        """get japanese title"""
         return self.data["attributes"]["titles"].get("ja_jp", "-")
 
     @property
     def description(self) -> str:
+        """get content description"""
         return self.data["attributes"]["description"]
 
     @property
     def nsfw(self) -> bool:
+        """check if content is nsfw"""
         return self.data["attributes"]["nsfw"]
 
     @property
     def synopsis(self) -> str:
+        """get synopsis"""
         return self.data["attributes"]["synopsis"]
 
     def get_poster_image(self, size: ImageSize = ImageSize.ORIGINAL) -> str:
+        """get poster image url"""
         poster = self.data["attributes"]["posterImage"]
         if poster is not None:
             return poster.get(size.value)
@@ -86,6 +105,7 @@ class Anime:
         return MediaDefault.NOT_FOUND.value
 
     def get_cover_image(self, size: ImageSize = ImageSize.ORIGINAL) -> str:
+        """get cover image url"""
         cover = self.data["attributes"]["coverImage"]
         if cover is not None:
             return cover.get(size.value)
@@ -93,6 +113,7 @@ class Anime:
         return MediaDefault.NOT_FOUND.value
 
     def genre_list(self) -> list:
+        """get genre list"""
         req = requests.get(self.api_url + "/genres")
 
         return [
@@ -101,8 +122,7 @@ class Anime:
         ]
 
     def discord_embed(self, cover: bool = False):
-        import discord
-
+        """create discord embed"""
         readmore = f"...\n\n[read more]({self.url})"
         embed = discord.Embed(
             title=self.title_jp[: 256 - len("...")]
@@ -149,11 +169,13 @@ class Anime:
 
 
 def search_anime(query: str, limit: int = 5) -> List[Anime]:
+    """search anime by query"""
     req = requests.get(BASE + "/anime", params={"filter[text]": query})
     return [Anime(int(data["id"])) for data in req.json()["data"][:limit]]
 
 
 def random_anime(limit: int = 5) -> List[Anime]:
+    """get random anime"""
     req = requests.get(BASE + "/anime")
     result = []
 

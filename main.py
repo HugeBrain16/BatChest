@@ -1,10 +1,13 @@
-import web
+"""main bot script"""
+
 import discord
 import discord.utils
 import cmdtools
-import config
 import lyricsgenius
 import asyncpraw
+
+import web
+import config
 
 from library.music import Music
 from library.commands import music
@@ -14,17 +17,31 @@ from library.commands import reddit
 
 
 class Bot(discord.Client):
+    """BatChest bot instance"""
+
+    def __init__(self):
+        self.genius = lyricsgenius.Genius(config.GENIUS_TOKEN)
+        self.reddit = asyncpraw.Reddit(
+            client_id=config.REDDIT_CLIENT_ID,
+            client_secret=config.REDDIT_CLIENT_SECRET,
+            user_agent="Reddit?! Haha Wowzers!!11! BatChest",
+        )
+        self.music = Music(self)
+
+        super().__init__()
+
     def get_voice(self) -> discord.VoiceClient:
         """get bot voice client"""
         return discord.utils.get(self.voice_clients, guild=self.get_guild(config.GUILD))
 
-    def is_user_in_vc(self, member: discord.Member) -> bool:
+    @classmethod
+    def is_user_in_vc(cls, member: discord.Member) -> bool:
         """check if user is in any voice channel"""
-        return False if member.voice is None else True
+        return not member.voice
 
     def is_in_vc(self) -> bool:
         """check if client is in any voice channel"""
-        return False if self.get_voice() is None else True
+        return not self.get_voice()
 
     def check_user_vc(self, user: discord.Member) -> bool:
         """check if user is in same voice channel as the client"""
@@ -33,18 +50,12 @@ class Bot(discord.Client):
         )
 
     async def on_ready(self):
+        """called when bot client is ready"""
         voice = self.get_voice()
 
         if voice:
             await voice.disconnect()
 
-        self.genius = lyricsgenius.Genius(config.GENIUS_TOKEN)
-        self.reddit = asyncpraw.Reddit(
-            client_id=config.REDDIT_CLIENT_ID,
-            client_secret=config.REDDIT_CLIENT_SECRET,
-            user_agent="Reddit?! Haha Wowzers!!11! BatChest",
-        )
-        self.music = Music(self)
         self.loop.create_task(self.music.run())
 
         await self.change_presence(
@@ -57,12 +68,14 @@ class Bot(discord.Client):
         print("I'm Ready BatChest")
 
     async def on_disconnect(self):
+        """called when client disconnected"""
         voice = self.get_voice()
 
         if voice:
             await voice.disconnect()
 
     async def on_message(self, message):
+        """called when new guild message created"""
         if message.author.bot or isinstance(message.channel, discord.channel.DMChannel):
             return
 
