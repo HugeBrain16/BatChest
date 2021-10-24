@@ -1,13 +1,17 @@
-import flask
+"""website module for the bot"""
+
 import threading
+import flask
+import config
 
 app = flask.Flask("BatChest")
 
 
 @app.route("/")
 def index():
-    return '<html><head><style>body {background-image: url("https://i.redd.it/20iz5ch1hsf71.gif"); background-repeat: repeat; background-color: #000000} h1 {background-color: white;}</style></head><body><h1>You\'ve Been Hax!11!1!!</body></html>'
+    """bot's index page"""
+    return flask.render_template("index.html")
 
 
-server = threading.Thread(target=app.run, kwargs={"host": "0.0.0.0"})
+server = threading.Thread(target=app.run, kwargs={"host": config.HOST, "port": config.PORT})
 server.daemon = True
