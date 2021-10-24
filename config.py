@@ -15,6 +15,10 @@ REDDIT_CLIENT_SECRET = os.getenv("REDDIT_CLIENT_SECRET", "no")
 GUILD = 877498494879952937
 PREFIXES = {"music": "b+", "anime": "a+", "general": "b!", "reddit": "r+"}
 
+# website config
+HOST = os.getenv("BOT_HOST", "120.0.0.1")
+PORT = os.getenv("BOT_PORT", 5555)
+
 
 class Version(Enum):
     PATCH = 0
