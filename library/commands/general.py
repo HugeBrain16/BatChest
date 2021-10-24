@@ -5,7 +5,7 @@ from cmdtools.ext.command import Command, CommandWrapper
 from library.commands import anime
 from library.commands import music
 from library.commands import reddit
-from library import utilily
+from library import utility
 
 group = CommandWrapper()
 
