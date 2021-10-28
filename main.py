@@ -14,6 +14,7 @@ from library.commands import music
 from library.commands import anime
 from library.commands import general
 from library.commands import reddit
+from library.commands import fun
 
 
 class Bot(discord.Client):
@@ -85,6 +86,7 @@ class Bot(discord.Client):
             message.content, prefix=config.PREFIXES["general"]
         )
         cmd_reddit = cmdtools.AioCmd(message.content, prefix=config.PREFIXES["reddit"])
+        cmd_fun = cmdtools.AioCmd(message.content, prefix=config.PREFIXES["fun"])
 
         if message.guild.id == config.GUILD:
             if cmd_music.name:
@@ -101,6 +103,10 @@ class Bot(discord.Client):
                 )
             elif cmd_reddit.name:
                 await reddit.group.run(
+                    cmd_reddit, attrs={"message": message, "client": self}
+                )
+            elif cmd_fun.name:
+                await fun.group.run(
                     cmd_reddit, attrs={"message": message, "client": self}
                 )
 
