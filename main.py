@@ -107,7 +107,7 @@ class Bot(discord.Client):
                 )
             elif cmd_fun.name:
                 await fun.group.run(
-                    cmd_reddit, attrs={"message": message, "client": self}
+                    cmd_fun, attrs={"message": message, "client": self}
                 )
 
 
