@@ -40,7 +40,11 @@ class Avatar(Command):
 
     async def avatar(self, mention=None):
         if mention:
-            user = self.client.get_user(utilily.mention_to_id(mention))
+            guild = self.client.get_guild(config.GUILD)
+            
+            user = None
+            if guild:
+                user = guild.get_member(utility.mention_to_id(mention))
 
             if user:
                 embed = discord.Embed(
