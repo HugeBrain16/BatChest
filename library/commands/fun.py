@@ -8,6 +8,7 @@ from cmdtools.ext.command import Command, CommandWrapper
 group = CommandWrapper()
 
 
+@group.command()
 class Dice(Command):
     def __init__(self):
         super().__init__(name="dice")
@@ -18,6 +19,7 @@ class Dice(Command):
         await self.message.reply(f"Your dice is **{dice}**")
 
 
+@group.command()
 class Joke(Command):
     def __init__(self):
         super().__init__(name="joke")
@@ -42,6 +44,7 @@ class Joke(Command):
                 await self.message.reply("Error fetching joke!")
 
 
+@group.command()
 class Magic8Ball(Command):
     __aliases__ = ["magic8ball", "m8ball"]
 
