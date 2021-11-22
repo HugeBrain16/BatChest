@@ -9,12 +9,8 @@ import asyncpraw
 import web
 import config
 
+from library import utility
 from library.music import Music
-from library.commands import music
-from library.commands import anime
-from library.commands import general
-from library.commands import reddit
-from library.commands import fun
 
 
 class Bot(discord.Client):
@@ -80,35 +76,17 @@ class Bot(discord.Client):
         if message.author.bot or isinstance(message.channel, discord.channel.DMChannel):
             return
 
-        cmd_music = cmdtools.AioCmd(message.content, prefix=config.PREFIXES["music"])
-        cmd_anime = cmdtools.AioCmd(message.content, prefix=config.PREFIXES["anime"])
-        cmd_general = cmdtools.AioCmd(
-            message.content, prefix=config.PREFIXES["general"]
-        )
-        cmd_reddit = cmdtools.AioCmd(message.content, prefix=config.PREFIXES["reddit"])
-        cmd_fun = cmdtools.AioCmd(message.content, prefix=config.PREFIXES["fun"])
-
         if message.guild.id == config.GUILD:
-            if cmd_music.name:
-                await music.group.run(
-                    cmd_music, attrs={"message": message, "client": self}
-                )
-            elif cmd_anime.name:
-                await anime.group.run(
-                    cmd_anime, attrs={"message": message, "client": self}
-                )
-            elif cmd_general.name:
-                await general.group.run(
-                    cmd_general, attrs={"message": message, "client": self}
-                )
-            elif cmd_reddit.name:
-                await reddit.group.run(
-                    cmd_reddit, attrs={"message": message, "client": self}
-                )
-            elif cmd_fun.name:
-                await fun.group.run(
-                    cmd_fun, attrs={"message": message, "client": self}
-                )
+            for command in utility.get_commands():
+                cmdobj = utility.load_command(command)
+                
+                if cmdobj and command in config.PREFIXES:
+                    cmd = cmdtools.AioCmd(message.content, prefix=config.PREFIXES[command])
+
+                    if cmd.name:
+                        await cmdobj.group.run(
+                            cmd, attrs={"message": message, "client": self}
+                        )
 
 
 if __name__ == "__main__":
