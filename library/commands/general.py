@@ -1,11 +1,8 @@
 import discord
 import config
+import requests
 
 from cmdtools.ext.command import Command, CommandWrapper
-from library.commands import anime
-from library.commands import music
-from library.commands import reddit
-from library.commands import fun
 from library import utility
 
 group = CommandWrapper()
@@ -89,31 +86,43 @@ class Help(Command):
         embed.description = (
             "Showing all available commands <a:batPls:896152163582111784>"
         )
-
-        embed.add_field(
-            name=f"General: {config.PREFIXES['general']}",
-            value=", ".join([cmd.name for cmd in group.commands]),
-            inline=False,
-        )
-        embed.add_field(
-            name=f"Music: {config.PREFIXES['music']}",
-            value=", ".join([cmd.name for cmd in music.group.commands]),
-            inline=False,
-        )
-        embed.add_field(
-            name=f"Anime: {config.PREFIXES['anime']}",
-            value=", ".join([cmd.name for cmd in anime.group.commands]),
-            inline=False,
-        )
-        embed.add_field(
-            name=f"Reddit: {config.PREFIXES['reddit']}",
-            value=", ".join([cmd.name for cmd in reddit.group.commands]),
-            inline=False,
-        )
-        embed.add_field(
-            name=f"Fun: {config.PREFIXES['fun']}",
-            value=", ".join([cmd.name for cmd in fun.group.commands]),
-            inline=False,
-        )
+        
+        for command in utility.get_commands():
+            cmdobj = utility.load_command(command)
+            
+            if cmdobj and command in config.PREFIXES:
+                embed.add_field(
+                    name=f"{command.lower().capitalize().replace('_', ' ')}: {config.PREFIXES[command]}",
+                    value=", ".join([cmd.name for cmd in cmdobj.group.commands]),
+                    inline=False,
+                )
 
         await self.message.reply(embed=embed)
+
+
+@group.command()
+class HostInfo(Command):
+    prefix = config.PREFIXES["general"]
+    category = "General"
+
+    def __init__(self):
+        super().__init__(name="hostinfo")
+
+    @property
+    def help(self):
+        return "Get bot host info."
+        
+    async def hostinfo(self):
+        req = requests.get("https://api.ipify.org", params={"format": "json"})
+        
+        if req.status_code == 200:
+            req = requests.get("http://ip-api.com/json/" + req.json()['ip'])
+            
+            if req.status_code == 200:
+                if req.json()['status'] == "success":
+                    embed = discord.Embed(title="Host Info", color=0x00FF00)
+                    embed.description = f"Country: **{req.json()['country']}**\nCity: **{req.json()['city']}**\nTimezone: **{req.json()['timezone']}**"
+                    
+                    await self.message.reply(embed=embed)
+                else:
+                    await self.message.reply("Failed to get host info!")
