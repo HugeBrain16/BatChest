@@ -21,7 +21,7 @@ PORT = os.getenv("BOT_PORT", 5555)
 
 
 class Version(Enum):
-    PATCH = 0
+    PATCH = 1
     MINOR = 2
     MAJOR = 0
 
