@@ -2,6 +2,7 @@ import random
 import requests
 import discord
 import cmdtools
+import config
 from cmdtools.ext.command import Command, CommandWrapper
 
 
@@ -10,6 +11,9 @@ group = CommandWrapper()
 
 @group.command()
 class Dice(Command):
+    prefix = config.PREFIXES["fun"]
+    category = "Fun"
+
     def __init__(self):
         super().__init__(name="dice")
         
@@ -21,6 +25,9 @@ class Dice(Command):
 
 @group.command()
 class Joke(Command):
+    prefix = config.PREFIXES["fun"]
+    category = "Fun"
+
     def __init__(self):
         super().__init__(name="joke")
         
@@ -47,6 +54,8 @@ class Joke(Command):
 @group.command()
 class Magic8Ball(Command):
     __aliases__ = ["magic8ball", "m8ball"]
+    prefix = config.PREFIXES["fun"]
+    category = "Fun"
 
     def __init__(self):
         super().__init__(name="8ball")
