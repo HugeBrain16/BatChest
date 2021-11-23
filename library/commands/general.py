@@ -1,6 +1,8 @@
 import discord
 import config
 import requests
+import cmdtools
+import datetime
 
 from cmdtools.ext.command import Command, CommandWrapper
 from library import utility
@@ -92,9 +94,9 @@ class Help(Command):
             
             if cmdobj and command in config.PREFIXES:
                 embed.add_field(
-                    name=f"{command.lower().capitalize().replace('_', ' ')}: {config.PREFIXES[command]}",
+                    name=f"{command.capitalize().replace('_', ' ')}: {config.PREFIXES[command]}",
                     value=", ".join([cmd.name for cmd in cmdobj.group.commands]),
-                    inline=False,
+                    inline=True,
                 )
 
         await self.message.reply(embed=embed)
@@ -126,3 +128,83 @@ class HostInfo(Command):
                     await self.message.reply(embed=embed)
                 else:
                     await self.message.reply("Failed to get host info!")
+
+
+@group.command()
+class CmdDetail(Command):
+    __aliases__ = ["searchcmd", "findcmd"]
+    prefix = config.PREFIXES["general"]
+    category = "General"
+
+    def __init__(self):
+        super().__init__(name="cmd")
+        
+    @property
+    def help(self):
+        return "Search for commands and the details"
+        
+    async def error_cmd(self, error):
+        if isinstance(error, cmdtools.MissingRequiredArgument):
+            if error.param == "name":
+                await self.message.reply("Please provide the command name!")
+        else:
+            raise error
+
+    async def cmd(self, name: str):
+        commands = []
+
+        for command in utility.get_commands():
+            mod = utility.load_command(command)
+            
+            for cobj in mod.group.commands:
+                if name in cobj.name:
+                    commands.append(cobj)
+                    
+        embed = discord.Embed(title="Search Result", color=0x00FF00)
+        embed.set_author(name="Command Details")
+
+        for cmd in commands:
+            details = ""
+            
+            if hasattr(cmd, 'help'):
+                if isinstance(cmd.help, str):
+                    details += cmd.help + "\n\n"
+            if hasattr(cmd, 'category'):
+                if isinstance(cmd.category, str):
+                    details += f"Category: **{cmd.category.capitalize()}**" + "\n"
+            if hasattr(cmd, "prefix"):
+                if isinstance(cmd.prefix, str):
+                    details += f"Prefix: **{cmd.prefix}**" + "\n"
+            
+            if cmd.aliases:
+                details += f"Aliases: {', '.join(cmd.aliases)}" + "\n"
+
+            embed.add_field(name=cmd.name, value=details, inline=True)
+
+        await self.message.reply(embed=embed)
+
+
+@group.command()
+class Info(Command):
+    __aliases__ = ["botinfo", ]
+    prefix = config.PREFIXES["general"]
+    category = "General"
+
+    def __init__(self):
+        super().__init__(name="info")
+        
+    @property
+    def help(self):
+        return "Get bot details"
+
+    async def info(self):
+        embed = discord.Embed(title="BatChest", color=0x00FFFF)
+        embed.set_footer(text=f"version {config.Version(0)}")
+        embed.set_thumbnail(url=self.client.user.avatar_url)
+
+        embed.description = ""
+        embed.description += "Source Code: https://github.com/HugeBrain16/BatChest" + "\n"
+        embed.description += f"Latency: **{self.client.latency * 1000:.2f}ms**" + "\n"
+        embed.description += f"Uptime: **{str(datetime.datetime.utcnow() - self.client.start_time)}**" + "\n"
+
+        await self.message.reply(embed=embed)

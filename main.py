@@ -5,6 +5,7 @@ import discord.utils
 import cmdtools
 import lyricsgenius
 import asyncpraw
+import datetime
 
 import web
 import config
@@ -48,6 +49,7 @@ class Bot(discord.Client):
 
     async def on_ready(self):
         """called when bot client is ready"""
+        self.start_time = datetime.datetime.utcnow()
         voice = self.get_voice()
 
         if voice:
