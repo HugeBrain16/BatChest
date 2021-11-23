@@ -14,7 +14,7 @@ __all__ = [
 
 @group.command()
 class Now(Command):
-    _aliases = ["nowplaying", "playing", "now_playing"]
+    __aliases__ = ["nowplaying", "playing", "now_playing"]
     prefix = config.PREFIXES["music"]
     category = "Music"
 
@@ -23,7 +23,7 @@ class Now(Command):
 
     @property
     def help(self):
-        return "Show what is the bot playing currently?"
+        return "Show what is the bot playing currently"
 
     async def now(self):
         voice = self.client.get_voice()
